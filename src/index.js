@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import hintergrund from './assets/hintergrund.png';
+import oben from './assets/oben.png';
 import unten from './assets/unten.png';
 
 class MyGame extends Phaser.Scene {
@@ -8,33 +9,60 @@ class MyGame extends Phaser.Scene {
     }
 
     preload() {
+        // Hintergrundbild und Balken laden
         this.load.image('backgroundImg', hintergrund);
-        this.load.image('barBottom', unten);
+        this.load.image('barTop', oben); // Bild für Balken oben laden
+        this.load.image('barBottom', unten); // Bild für Balken unten laden
     }
 
     create() {
+        // Hintergrundbild hinzufügen
         const background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
 
-        // Skaliere das Hintergrundbild, um das gesamte Fenster zu füllen
-        background.setScale(this.game.canvas.width / background.width, this.game.canvas.height / background.height);
+        // Skalierung des Hintergrundbilds anpassen, um es vollständig anzuzeigen
+        const scaleX = this.game.canvas.width / background.width;
+        const scaleY = this.game.canvas.height / background.height;
+        background.setScale(scaleX, scaleY);
 
-        const barGroup = this.add.group(); // Erstelle eine normale Gruppe für die Balken
+        // Balkengruppe für Balken oben und unten erstellen
+        const barGroupTop = this.add.group();
+        const barGroupBottom = this.add.group();
 
-        // Erstelle Balken unten
-        const barSpacing = 100; // Abstand zwischen den Balken
-        const barWidth = 40; // Breite der Balken
+        const barSpacing = 100;
+        const barWidth = 60; // Breite der Balken erhöhen
         const numBars = Math.floor(800 / (barWidth + barSpacing));
-        const yValues = []; // Array für die zufälligen Y-Positionen der Balken
+        let longBar = true; // Variable, um abwechselnd lange und kurze Balken zu erzeugen
 
-        for (let i = 0; i < numBars; i++) {
-            yValues.push(Phaser.Math.Between(50, 300)); // Füge eine zufällige Y-Position zum Array hinzu
-        }
-
+        // Balken oben an der Linie des Hintergrunds erstellen
         for (let i = 0; i < numBars; i++) {
             const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
-            const y = yValues[i]; // Holen Sie sich die Y-Position aus dem Array
-            const barBottom = barGroup.create(x, y, 'barBottom').setOrigin(0.5, 0);
+            const yTop = background.y; // Balken oben an der Linie des Hintergrunds beginnen
+            let barHeight = 20; // Standardhöhe für kurze Balken
+            if (longBar) {
+                barHeight = Phaser.Math.Between(50, 200); // Zufällige Höhe für lange Balken
+            } else {
+                barHeight = Phaser.Math.Between(20, 100); // Zufällige Höhe für kurze Balken
+            }
+            const barTop = barGroupTop.create(x, yTop, 'barTop').setOrigin(0.5, 0).setDisplaySize(barWidth, barHeight);
+            longBar = !longBar; // Toggle zwischen langen und kurzen Balken
         }
+
+        // Balken unten an der Linie des Hintergrunds erstellen
+        for (let i = 0; i < numBars; i++) {
+            const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
+            const yBottom = background.height; // Balken unten an der Linie des Hintergrunds beginnen
+            let barHeight = 20; // Standardhöhe für kurze Balken
+            if (longBar) {
+                barHeight = Phaser.Math.Between(50, 200); // Zufällige Höhe für lange Balken
+            } else {
+                barHeight = Phaser.Math.Between(20, 100); // Zufällige Höhe für kurze Balken
+            }
+            const barBottom = barGroupBottom.create(x, yBottom, 'barBottom').setOrigin(0.5, 1).setDisplaySize(barWidth, barHeight);
+            longBar = !longBar; // Toggle zwischen langen und kurzen Balken
+        }
+
+        // Debugging-Ausgabe
+        console.log("Balken wurden erstellt.");
     }
 }
 
