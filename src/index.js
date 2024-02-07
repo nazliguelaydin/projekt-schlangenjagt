@@ -24,7 +24,7 @@ class MyGame extends Phaser.Scene {
         const scaleY = this.game.canvas.height / background.height;
         background.setScale(scaleX, scaleY);
 
-        // Balkengruppe für Balken oben und unten erstellen
+        // Balkengruppen für Balken oben und unten erstellen
         const barGroupTop = this.add.group();
         const barGroupBottom = this.add.group();
 
@@ -33,31 +33,31 @@ class MyGame extends Phaser.Scene {
         const numBars = Math.floor(800 / (barWidth + barSpacing));
         let longBar = true; // Variable, um abwechselnd lange und kurze Balken zu erzeugen
 
-        // Balken oben an der Linie des Hintergrunds erstellen
+        // Balken oben am unteren Rand des Hintergrunds erstellen
         for (let i = 0; i < numBars; i++) {
             const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
-            const yTop = background.y; // Balken oben an der Linie des Hintergrunds beginnen
+            const yTop = background.height; // Balken oben am unteren Rand des Hintergrunds beginnen
             let barHeight = 20; // Standardhöhe für kurze Balken
             if (longBar) {
                 barHeight = Phaser.Math.Between(50, 200); // Zufällige Höhe für lange Balken
             } else {
                 barHeight = Phaser.Math.Between(20, 100); // Zufällige Höhe für kurze Balken
             }
-            const barTop = barGroupTop.create(x, yTop, 'barTop').setOrigin(0.5, 0).setDisplaySize(barWidth, barHeight);
+            const barTop = barGroupTop.create(x, yTop, 'barTop').setOrigin(0.5, 1).setDisplaySize(barWidth, barHeight);
             longBar = !longBar; // Toggle zwischen langen und kurzen Balken
         }
 
-        // Balken unten an der Linie des Hintergrunds erstellen
+        // Balken unten am oberen Rand des Hintergrunds erstellen
         for (let i = 0; i < numBars; i++) {
             const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
-            const yBottom = background.height; // Balken unten an der Linie des Hintergrunds beginnen
+            const yBottom = 0; // Balken unten am oberen Rand des Hintergrunds beginnen
             let barHeight = 20; // Standardhöhe für kurze Balken
             if (longBar) {
                 barHeight = Phaser.Math.Between(50, 200); // Zufällige Höhe für lange Balken
             } else {
                 barHeight = Phaser.Math.Between(20, 100); // Zufällige Höhe für kurze Balken
             }
-            const barBottom = barGroupBottom.create(x, yBottom, 'barBottom').setOrigin(0.5, 1).setDisplaySize(barWidth, barHeight);
+            const barBottom = barGroupBottom.create(x, yBottom, 'barBottom').setOrigin(0.5, 0).setDisplaySize(barWidth, barHeight);
             longBar = !longBar; // Toggle zwischen langen und kurzen Balken
         }
 
