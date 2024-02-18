@@ -121,8 +121,16 @@ class MyGame extends Phaser.Scene {
         });
         this.gameOverText.setOrigin(0.5);
         this.gameOverText.setVisible(false);
-    }
 
+        // Add event listener to the start button
+        const startButton = document.getElementById("startButton");
+        startButton.addEventListener("click", () => {
+            this.startGame();
+        });
+    }
+     startGame(){};
+
+    
     
    
     update() {
