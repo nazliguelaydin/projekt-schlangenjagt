@@ -74,13 +74,18 @@ class SceneB extends Phaser.Scene {
         this.load.image('snake', schlange);
         this.load.image('butterfly', schmetterling);
 
+        //this.load.audio('mainMusic', 'music/sound.mp3');
+
     
     }
 
     create() {
 
       
-
+       // this.gameMusic = this.sound.add('mainMusic', { loop: true, volume: 0.15 });
+        //this.gameMusic.play();
+        
+        
 
         // Erstelle den ersten Hintergrund
         this.background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
