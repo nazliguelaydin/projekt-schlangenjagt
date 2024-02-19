@@ -4,8 +4,34 @@ import oben from './assets/oben.png';
 import unten from './assets/unten.png';
 import schmetterling from './assets/schmetterling.png';
 import schlange from './assets/schlange.png';
+import loadingScreen from './assets/loadingscreen.jpg';
 
-class MyGame extends Phaser.Scene {
+class SceneA extends Phaser.Scene{
+    constructor(){
+        super('SceneA')
+    }
+
+    preload(){
+        //Screen wechselns
+        this.load.image('loadingScreen', loading);
+    }
+
+    create(){
+         //start button
+         const playButton = this.add.rectangle(this.sys.scale.width /2, this.sys.scale.height - 100, 290,50,0x000000,1);
+         playButton.setInteractive();
+         const textButton = this.add.text(this.sys.scale.width / 2, this.sys.scale.height -100, "Play").setOrigin(0.5);
+ 
+         //Change scene
+         playButton.on('pointerdown', () => {
+             this.scene.start('MyGame');
+             });
+ 
+    }
+}
+
+
+class SceneB extends Phaser.Scene {
     constructor() {
         super({ key: 'MyGame' });
         this.barGroupTop = null;
@@ -13,6 +39,7 @@ class MyGame extends Phaser.Scene {
         this.score = 0;
         this.scoreText = null;
         this.gameOverText = null;
+        this.backgroundSpeed = 1; // Added this line to initialize backgroundSpeed
     }
 
     preload() {
@@ -24,10 +51,16 @@ class MyGame extends Phaser.Scene {
     }
 
     create() {
-        const background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
-        const scaleX = this.game.canvas.width / background.width;
-        const scaleY = this.game.canvas.height / background.height;
-        background.setScale(scaleX, scaleY);
+        
+       
+            
+
+        // Erstelle den ersten Hintergrund
+        this.background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
+    
+        // Erstelle den zweiten Hintergrund neben dem ersten Hintergrund
+        this.background2 = this.add.image(this.background.x + this.background.width, 0, 'backgroundImg').setOrigin(0);
+        
 
         this.barGroupTop = this.physics.add.staticGroup();
         this.barGroupBottom = this.physics.add.staticGroup();
@@ -42,7 +75,7 @@ class MyGame extends Phaser.Scene {
             const yTop = this.game.canvas.height;
             let barHeight = 100;
             if (longBar) {
-                barHeight = Phaser.Math.Between(500,700);
+                barHeight = Phaser.Math.Between(500, 700);
             } else {
                 barHeight = Phaser.Math.Between(250, 500);
             }
@@ -62,8 +95,6 @@ class MyGame extends Phaser.Scene {
             this.barGroupBottom.create(x, yBottom, 'barBottom').setDisplaySize(barWidth, barHeight);
             longBar = !longBar;
         }
-
-        console.log("Balken wurden erstellt.");
 
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
@@ -95,9 +126,7 @@ class MyGame extends Phaser.Scene {
             const destroyTime = Phaser.Math.Between(5000, 10000);
             this.time.delayedCall(destroyTime, () => {
                 butterfly.destroy();
-                // Nachdem ein Schmetterling zerstört wurde, überprüfen wir die Anzahl der verbleibenden Schmetterlinge
                 if (this.butterflies.countActive() <= 10) {
-                    // Wenn 5 oder weniger Schmetterlinge übrig sind, erstellen wir erneut 20 Schmetterlinge
                     for (let i = 0; i < initialButterflies; i++) {
                         createButterfly();
                     }
@@ -105,15 +134,12 @@ class MyGame extends Phaser.Scene {
             });
         };
     
-        // Erstelle die anfänglichen Schmetterlinge
         for (let i = 0; i < initialButterflies; i++) {
             createButterfly();
         }
 
-        // Score Text
         this.scoreText = this.add.text(10, 10, 'Score: 0', { fontFamily: 'Arial', fontSize: 30, color: '#ffffff' });
 
-        // Game Over Text
         this.gameOverText = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, 'Game Over', {
             fontFamily: 'Arial',
             fontSize: 48,
@@ -122,22 +148,24 @@ class MyGame extends Phaser.Scene {
         this.gameOverText.setOrigin(0.5);
         this.gameOverText.setVisible(false);
 
-        // Add event listener to the start button
-        const startButton = document.getElementById("startButton");
-        startButton.addEventListener("click", () => {
-            this.startGame();
-        });
     }
-     startGame(){};
 
-    
-    
-   
     update() {
-        // Kollisionserkennung nur durchführen, wenn das Spiel nicht vorbei ist
+        // Move the background images to the left
+        this.background.x -= this.backgroundSpeed;
+        this.background2.x -= this.backgroundSpeed;
+
+        // Check if the background images have moved off the screen
+        if (this.background.x + this.background.width < 0) {
+            this.background.x = this.background2.x + this.background2.width;
+        }
+
+        if (this.background2.x + this.background2.width < 0) {
+            this.background2.x = this.background.x + this.background.width;
+        }
+
         if (!this.gameOverText.visible) {
             this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
-                // Nur den Game Over-Text anzeigen, aber das Spiel nicht beenden
                 this.showGameOverText();
             });
     
@@ -147,19 +175,19 @@ class MyGame extends Phaser.Scene {
                 butterfly.destroy();
             });
     
-            // Stelle sicher, dass das Spiel weitergeht, auch wenn die Schlange den Bildschirmrand berührt
             if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
-                this.snake.y = this.game.canvas.height / 2; // Setze die Schlange zurück in die Mitte
+                this.snake.y = this.game.canvas.height / 2;
             }
     
-            // Überprüfe, ob die Schlange den rechten Bildschirmrand erreicht hat
             if (this.snake.x >= this.game.canvas.width) {
-                // Setze die Schlange zurück auf die linke Seite des Bildschirms
                 this.snake.x = 0;
-                // Erzeuge neue Balken, wenn die Schlange den rechten Rand erreicht
                 this.generateNewBars();
             }
         }
+    
+       
+
+        
     
         // Bewegung der Schlange mit konstanter Geschwindigkeit
         this.snake.setVelocityX(160); // X-Geschwindigkeit
@@ -200,11 +228,12 @@ class MyGame extends Phaser.Scene {
     }
 }
 
+
 const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    scene: MyGame,
+    scene: [SceneA, SceneB],
     physics: {
         default: 'arcade',
         arcade: {
@@ -212,6 +241,8 @@ const config = {
             debug: false
         }
     }
-}
+
+   
+};
    
 const game = new Phaser.Game(config);
