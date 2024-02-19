@@ -8,6 +8,7 @@ import loadingScreen from './assets/loadingscreen.jpg';
 import spinnerGif from './assets/spinnerGif.gif';
 
 
+
 class SceneA extends Phaser.Scene {
     constructor() {
         super('SceneA');
@@ -28,11 +29,11 @@ class SceneA extends Phaser.Scene {
         playButton.setInteractive();
         const textButton = this.add.text(this.sys.scale.width / 2, this.sys.scale.height - 100, "Play", 
         { 
-            fill: '#D2691E',
+            fill: 'orange',
             fontSize: '24px',
             fontStyle: 'bold',
             padding: {x:50, y:5},
-            backgroundColor: 'orange'
+            
         }).setOrigin(0.5);
 
         // Spinner erstellen
@@ -72,9 +73,15 @@ class SceneB extends Phaser.Scene {
         this.load.image('barBottom', unten);
         this.load.image('snake', schlange);
         this.load.image('butterfly', schmetterling);
+
+    
     }
 
     create() {
+
+      
+
+
         // Erstelle den ersten Hintergrund
         this.background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
 
