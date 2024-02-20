@@ -6,6 +6,8 @@ import schmetterling from './assets/schmetterling.png';
 import schlange from './assets/schlange.png';
 import loadingScreen from './assets/loadingscreen.jpg';
 import spinnerGif from './assets/spinnerGif.gif';
+//import music from './assets/sound.mp3';
+
 
 
 
@@ -74,16 +76,31 @@ class SceneB extends Phaser.Scene {
         this.load.image('snake', schlange);
         this.load.image('butterfly', schmetterling);
 
-        //this.load.audio('mainMusic', 'music/sound.mp3');
+        this.load.audio('music', '/assets/sound.mp3');
 
     
     }
 
     create() {
 
-      
-       // this.gameMusic = this.sound.add('mainMusic', { loop: true, volume: 0.15 });
-        //this.gameMusic.play();
+        
+        this.music = this.sound.add('music', {
+            volume: 0.2,
+            loop:true
+        })
+
+        if (!this.sound.locked){
+            this.music.play()
+        }
+        else {
+            this.sound.once(Phaser.Sound.Events.UNLOCKED, ()=> {
+                this.music.play()
+            })
+        }
+        
+
+       // this.gameMusic = this.sound.add('music', { loop: true, volume: 0.15 });
+       // this.gameMusic.play();
         
         
 
@@ -111,7 +128,7 @@ class SceneB extends Phaser.Scene {
             } else {
                 barHeight = Phaser.Math.Between(250, 500);
             }
-            this.barGroupTop.create(x, yTop, 'barTop').setDisplaySize(barWidth, barHeight);
+            this.barGroupTop.create(x, yTop, 'barTop').setScale(0.05).refreshBody().setDisplaySize(barWidth, barHeight);
             longBar = !longBar;
         }
 
@@ -124,7 +141,7 @@ class SceneB extends Phaser.Scene {
             } else {
                 barHeight = Phaser.Math.Between(250, 500);
             }
-            this.barGroupBottom.create(x, yBottom, 'barBottom').setDisplaySize(barWidth, barHeight);
+            this.barGroupBottom.create(x, yBottom, 'barBottom').setScale(0.05).refreshBody().setDisplaySize(barWidth, barHeight);
             longBar = !longBar;
         }
 
