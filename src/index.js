@@ -117,12 +117,15 @@ class SceneB extends Phaser.Scene {
         // Erstelle den zweiten Hintergrund neben dem ersten Hintergrund
         this.background2 = this.add.image(this.background.x + this.background.width, 0, 'backgroundImg').setOrigin(0);
 
+        this.barGroupTop = this.physics.add.group()
         
         const createbarTop = ()=> {
             const barSpacing = 80;
             const barWidth = 60;
             const numBars = Math.floor(this.game.canvas.width / (barWidth + barSpacing));
             let longBar = true;
+
+
 
             let barTop = this.barGroupTop.create(barSpacing, barWidth, 'barTop').setScale(0.045).refreshBody().setMaxVelocity(0,0).setGravity(0,0)
 
@@ -188,7 +191,7 @@ class SceneB extends Phaser.Scene {
             longBar = !longBar;
         }
 
-       */
+       
 
         for (let i = 0; i < numBars; i++) {
             const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
@@ -203,6 +206,7 @@ class SceneB extends Phaser.Scene {
             longBar = !longBar;
         }
 
+        */
        
         
 
