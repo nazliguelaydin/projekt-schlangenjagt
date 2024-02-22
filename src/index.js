@@ -80,6 +80,8 @@ class SceneB extends Phaser.Scene {
         this.scoreText = null;
         this.gameOverText = null;
         this.backgroundSpeed = 1;
+        this.barGroupBottomSpeed = 1;
+        this.barGroupTopSpeed = 1;
     }
 
     preload() {
@@ -112,9 +114,13 @@ class SceneB extends Phaser.Scene {
         // Erstelle den zweiten Hintergrund neben dem ersten Hintergrund
         this.background2 = this.add.image(this.background.x + this.background.width, 0, 'backgroundImg').setOrigin(0);
 
+
+
         // Hinzufügen der Balken
         this.barGroupTop = this.physics.add.group();
         this.barGroupBottom = this.physics.add.group();
+
+    
 
         const createBarTop = () => {
             const barSpacing = 80;
@@ -137,27 +143,19 @@ class SceneB extends Phaser.Scene {
                 longBar = !longBar;
             }
 
-            // von rechts nach links bewegen
-            this.tweens.add({
-                targets: barTop,
-                x: -100,
-                duration: 2500,
-                ease: 'Linear',
-                onComplete: () => barTop.destroy()
-            });
+            
 
-            this.time.addEvent({
-                delay: 30000,
-                callback: () => barTop.destroy()
-            });
+           
         };
 
         this.createBarTopLoop = this.time.addEvent({
-            delay: Phaser.Math.FloatBetween(1500, 4000),
+            delay: Phaser.Math.FloatBetween(2000, 4500),
             callback: createBarTop,
             callbackScope: this,
             loop: true
         });
+
+       
 
         const createBarBottom = () => {
             const barSpacing = 80;
@@ -180,23 +178,13 @@ class SceneB extends Phaser.Scene {
                 longBar = !longBar;
             }
 
-            // von rechts nach links bewegen
-            this.tweens.add({
-                targets: barBottom,
-                x: -100,
-                duration: 2500,
-                ease: 'Linear',
-                onComplete: () => barBottom.destroy()
-            });
+            
 
-            this.time.addEvent({
-                delay: 30000,
-                callback: () => barBottom.destroy()
-            });
+           
         };
 
         this.createBarBottomLoop = this.time.addEvent({
-            delay: Phaser.Math.FloatBetween(1500, 4000),
+            delay: Phaser.Math.FloatBetween(2000, 4500),
             callback: createBarBottom,
             callbackScope: this,
             loop: true
@@ -273,6 +261,24 @@ class SceneB extends Phaser.Scene {
             this.background2.x = this.background.x + this.background.width;
         }
     
+        // Balkenbewegung
+    this.barGroupTop.getChildren().forEach(bar => {
+        bar.x -= this.barGroupTopSpeed;
+        if (bar.x + bar.width <= 0) {
+            bar.destroy();
+            this.createBarTop();
+        }
+    });
+
+    this.barGroupBottom.getChildren().forEach(bar => {
+        bar.x -= this.barGroupBottomSpeed;
+        if (bar.x + bar.width <= 0) {
+            bar.destroy();
+            this.createBarBottom();
+        }
+    });
+
+
         // Steuerung der Schlange
         this.snake.setVelocity(0);
     
