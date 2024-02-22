@@ -70,6 +70,7 @@ class SceneA extends Phaser.Scene {
     }
 }
 
+
 class SceneB extends Phaser.Scene {
     constructor() {
         super({ key: 'MyGame' });
@@ -89,49 +90,42 @@ class SceneB extends Phaser.Scene {
         this.load.image('butterfly', schmetterling);
 
         this.load.audio('music', '/assets/sound.mp3');
-
-    
     }
 
     create() {
-
-        
         this.music = this.sound.add('music', {
             volume: 0.4,
-            loop:true
-        })
+            loop: true
+        });
 
-        if (!this.sound.locked){
-            this.music.play()
+        if (!this.sound.locked) {
+            this.music.play();
+        } else {
+            this.sound.once(Phaser.Sound.Events.UNLOCKED, () => {
+                this.music.play();
+            });
         }
-        else {
-            this.sound.once(Phaser.Sound.Events.UNLOCKED, ()=> {
-                this.music.play()
-            })
-        }
-        
-    
+
         // Erstelle den ersten Hintergrund
         this.background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
 
         // Erstelle den zweiten Hintergrund neben dem ersten Hintergrund
         this.background2 = this.add.image(this.background.x + this.background.width, 0, 'backgroundImg').setOrigin(0);
 
-        this.barGroupTop = this.physics.add.group()
-        
-        const createbarTop = ()=> {
+        // Hinzufügen der Balken
+        this.barGroupTop = this.physics.add.group();
+        this.barGroupBottom = this.physics.add.group();
+
+        const createBarTop = () => {
             const barSpacing = 80;
             const barWidth = 60;
             const numBars = Math.floor(this.game.canvas.width / (barWidth + barSpacing));
             let longBar = true;
 
-
-
-            let barTop = this.barGroupTop.create(barSpacing, barWidth, 'barTop').setScale(0.045).refreshBody().setMaxVelocity(0,0).setGravity(0,0)
+            let barTop = this.barGroupTop.create(barSpacing, barWidth, 'barTop').setScale(0.045).refreshBody().setMaxVelocity(0, 0).setGravity(0, 0);
 
             for (let i = 0; i < numBars; i++) {
                 const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
-
                 const yTop = this.game.canvas.height;
                 let barHeight = 100;
                 if (longBar) {
@@ -143,72 +137,70 @@ class SceneB extends Phaser.Scene {
                 longBar = !longBar;
             }
 
-
             // von rechts nach links bewegen
             this.tweens.add({
                 targets: barTop,
                 x: -100,
                 duration: 2500,
                 ease: 'Linear',
-                onComplete: ()=> barTop.destroy()
+                onComplete: () => barTop.destroy()
             });
 
             this.time.addEvent({
                 delay: 30000,
-                callback: ()=> barTop.destroy()
-
-            })
-
-        }
+                callback: () => barTop.destroy()
+            });
+        };
 
         this.createBarTopLoop = this.time.addEvent({
-            delay: Phaser.Math.FloatBetween(1500,4000),
-            callback: createbarTop,
+            delay: Phaser.Math.FloatBetween(1500, 4000),
+            callback: createBarTop,
             callbackScope: this,
             loop: true
-        })
-        /*
-        // Hinzufügen der Balken
-        this.barGroupTop = this.physics.add.staticGroup();
-        this.barGroupBottom = this.physics.add.staticGroup();
+        });
 
-        const barSpacing = 80;
-        const barWidth = 60;
-        const numBars = Math.floor(this.game.canvas.width / (barWidth + barSpacing));
-        let longBar = true;
+        const createBarBottom = () => {
+            const barSpacing = 80;
+            const barWidth = 60;
+            const numBars = Math.floor(this.game.canvas.width / (barWidth + barSpacing));
+            let longBar = true;
 
-        for (let i = 0; i < numBars; i++) {
-            const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
+            let barBottom = this.barGroupBottom.create(barSpacing, barWidth, 'barBottom').setScale(0.045).refreshBody().setMaxVelocity(0, 0).setGravity(0, 0);
 
-            const yTop = this.game.canvas.height;
-            let barHeight = 100;
-            if (longBar) {
-                barHeight = Phaser.Math.Between(500, 700);
-            } else {
-                barHeight = Phaser.Math.Between(250, 500);
+            for (let i = 0; i < numBars; i++) {
+                const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
+                const yBottom = 0;
+                let barHeight = 30;
+                if (longBar) {
+                    barHeight = Phaser.Math.Between(500, 600);
+                } else {
+                    barHeight = Phaser.Math.Between(250, 500);
+                }
+                this.barGroupBottom.create(x, yBottom, 'barBottom').setDisplaySize(barWidth, barHeight);
+                longBar = !longBar;
             }
-            this.barGroupTop.create(x, yTop, 'barTop').setDisplaySize(barWidth, barHeight);
-            longBar = !longBar;
-        }
 
-       
+            // von rechts nach links bewegen
+            this.tweens.add({
+                targets: barBottom,
+                x: -100,
+                duration: 2500,
+                ease: 'Linear',
+                onComplete: () => barBottom.destroy()
+            });
 
-        for (let i = 0; i < numBars; i++) {
-            const x = (i * (barWidth + barSpacing)) + (barWidth / 2);
-            const yBottom = 0;
-            let barHeight = 30;
-            if (longBar) {
-                barHeight = Phaser.Math.Between(500, 600);
-            } else {
-                barHeight = Phaser.Math.Between(250, 500);
-            }
-            this.barGroupBottom.create(x, yBottom, 'barBottom').setDisplaySize(barWidth, barHeight);
-            longBar = !longBar;
-        }
+            this.time.addEvent({
+                delay: 30000,
+                callback: () => barBottom.destroy()
+            });
+        };
 
-        */
-       
-        
+        this.createBarBottomLoop = this.time.addEvent({
+            delay: Phaser.Math.FloatBetween(1500, 4000),
+            callback: createBarBottom,
+            callbackScope: this,
+            loop: true
+        });
 
         // Schlange hinzufügen und Kollisionen einrichten
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
