@@ -113,7 +113,7 @@ class SceneB extends Phaser.Scene {
         this.barGroupTop = this.physics.add.group();
         this.barGroupBottom = this.physics.add.group();
 
-        const createBarTop = () => {
+        this.createBarTop = function() {
             const barSpacing = 80;
             const barWidth = 60;
             const numBars = Math.floor(this.game.canvas.width / (barWidth + barSpacing));
@@ -137,12 +137,12 @@ class SceneB extends Phaser.Scene {
 
         this.createBarTopLoop = this.time.addEvent({
             delay: Phaser.Math.FloatBetween(2000, 4500),
-            callback: createBarTop,
+            callback: this.createBarTop,
             callbackScope: this,
             loop: true
         });
 
-        const createBarBottom = () => {
+        this.createBarBottom = function() {
             const barSpacing = 80;
             const barWidth = 60;
             const numBars = Math.floor(this.game.canvas.width / (barWidth + barSpacing));
@@ -166,7 +166,7 @@ class SceneB extends Phaser.Scene {
 
         this.createBarBottomLoop = this.time.addEvent({
             delay: Phaser.Math.FloatBetween(2000, 4500),
-            callback: createBarBottom,
+            callback: this.createBarBottom,
             callbackScope: this,
             loop: true
         });
