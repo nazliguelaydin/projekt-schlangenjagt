@@ -90,7 +90,6 @@ class SceneB extends Phaser.Scene {
         this.load.image('barBottom', unten);
         this.load.image('snake', schlange);
         this.load.image('butterfly', schmetterling);
-
         this.load.audio('music', '/assets/sound.mp3');
     }
 
@@ -108,19 +107,11 @@ class SceneB extends Phaser.Scene {
             });
         }
 
-        // Erstelle den ersten Hintergrund
         this.background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
-
-        // Erstelle den zweiten Hintergrund neben dem ersten Hintergrund
         this.background2 = this.add.image(this.background.x + this.background.width, 0, 'backgroundImg').setOrigin(0);
 
-
-
-        // Hinzufügen der Balken
         this.barGroupTop = this.physics.add.group();
         this.barGroupBottom = this.physics.add.group();
-
-    
 
         const createBarTop = () => {
             const barSpacing = 80;
@@ -142,10 +133,6 @@ class SceneB extends Phaser.Scene {
                 this.barGroupTop.create(x, yTop, 'barTop').setDisplaySize(barWidth, barHeight);
                 longBar = !longBar;
             }
-
-            
-
-           
         };
 
         this.createBarTopLoop = this.time.addEvent({
@@ -154,8 +141,6 @@ class SceneB extends Phaser.Scene {
             callbackScope: this,
             loop: true
         });
-
-       
 
         const createBarBottom = () => {
             const barSpacing = 80;
@@ -177,10 +162,6 @@ class SceneB extends Phaser.Scene {
                 this.barGroupBottom.create(x, yBottom, 'barBottom').setDisplaySize(barWidth, barHeight);
                 longBar = !longBar;
             }
-
-            
-
-           
         };
 
         this.createBarBottomLoop = this.time.addEvent({
@@ -190,7 +171,6 @@ class SceneB extends Phaser.Scene {
             loop: true
         });
 
-        // Schlange hinzufügen und Kollisionen einrichten
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
         this.snake.setScale(0.06);
@@ -201,10 +181,8 @@ class SceneB extends Phaser.Scene {
             this.gameOver();
         });
 
-        // Tastatursteuerung für die Schlange einrichten
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Schmetterlinge hinzufügen
         this.butterflies = this.physics.add.group();
         const initialButterflies = 20;
 
@@ -233,7 +211,6 @@ class SceneB extends Phaser.Scene {
             createButterfly();
         }
 
-        // Anzeige für den Punktestand und das Game Over
         this.scoreText = this.add.text(10, 10, 'Score: 0', { fontFamily: 'Arial', fontSize: 30, color: '#ffffff' });
         this.gameOverText = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, 'Game Over', {
             fontFamily: 'Arial',
@@ -244,15 +221,10 @@ class SceneB extends Phaser.Scene {
         this.gameOverText.setVisible(false);
     }
 
-    
-    
-    
     update() {
-        // Bewege die Hintergrundbilder nach links
         this.background.x -= this.backgroundSpeed;
         this.background2.x -= this.backgroundSpeed;
     
-        // Überprüfe, ob die Hintergrundbilder den Bildschirm verlassen haben
         if (this.background.x + this.background.width < 0) {
             this.background.x = this.background2.x + this.background2.width;
         }
@@ -260,29 +232,26 @@ class SceneB extends Phaser.Scene {
         if (this.background2.x + this.background2.width < 0) {
             this.background2.x = this.background.x + this.background.width;
         }
-    
-        // Balkenbewegung
-    this.barGroupTop.getChildren().forEach(bar => {
-        bar.x -= this.barGroupTopSpeed;
-        if (bar.x + bar.width <= 0) {
-            bar.destroy();
-            this.createBarTop();
-        }
-    });
 
-    this.barGroupBottom.getChildren().forEach(bar => {
-        bar.x -= this.barGroupBottomSpeed;
-        if (bar.x + bar.width <= 0) {
-            bar.destroy();
-            this.createBarBottom();
-        }
-    });
+        this.barGroupTop.getChildren().forEach(bar => {
+            bar.x -= this.barGroupTopSpeed;
+            if (bar.x + bar.width <= 0) {
+                bar.destroy();
+                this.createBarTop();
+            }
+        });
 
+        this.barGroupBottom.getChildren().forEach(bar => {
+            bar.x -= this.barGroupBottomSpeed;
+            if (bar.x + bar.width <= 0) {
+                bar.destroy();
+                this.createBarBottom();
+            }
+        });
 
-        // Steuerung der Schlange
         this.snake.setVelocity(0);
     
-        if (this.cursors.left.isDown) {
+        if (        this.cursors.left.isDown) {
             this.snake.setVelocityX(-160);
         } else if (this.cursors.right.isDown) {
             this.snake.setVelocityX(160);
@@ -294,28 +263,27 @@ class SceneB extends Phaser.Scene {
             this.snake.setVelocityY(160);
         }
     
-       // Kollisionen und Punkteberechnung aktualisieren
-       if (!this.gameOverText.visible) {
-        this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
-            this.gameOver();
-        });
+        if (!this.gameOverText.visible) {
+            this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
+                this.gameOver();
+            });
 
-        this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
-            this.score += butterfly.getData('point');
-            this.scoreText.setText('Score: ' + this.score);
-            butterfly.destroy();
-        });
+            this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
+                this.score += butterfly.getData('point');
+                this.scoreText.setText('Score: ' + this.score);
+                butterfly.destroy();
+            });
 
-        if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
-            this.snake.y = this.game.canvas.height / 2;
-        }
+            if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
+                this.snake.y = this.game.canvas.height / 2;
+            }
 
-        if (this.snake.x >= this.game.canvas.width) {
-            this.snake.x = 0;
-            this.generateNewBars();
+            if (this.snake.x >= this.game.canvas.width) {
+                this.snake.x = 0;
+                this.generateNewBars();
+            }
         }
     }
-}
     
     gameOver() {
         if (this.gameOverText) {
@@ -324,12 +292,10 @@ class SceneB extends Phaser.Scene {
             this.snake.anims.stop();
             this.snake.setVelocity(0);
         }
-    
-         // Stoppe das Erstellen von Schmetterlingen
+       
          clearInterval(this.butterflyInterval);
     }
 }
-
 
 const config = {
     type: Phaser.AUTO,
@@ -343,8 +309,7 @@ const config = {
             debug: false
         }
     }
-
-   
 };
    
 const game = new Phaser.Game(config);
+
