@@ -184,16 +184,17 @@ class SceneB extends Phaser.Scene {
         this.snake.setScale(0.06);
 
         
-
-        /*
         this.physics.add.collider(this.snake, this.barGroupTop, () => {
             this.gameOver();
         });
-    
+        
         this.physics.add.collider(this.snake, this.barGroupBottom, () => {
             this.gameOver();
         });
-        */
+        
+        
+
+    
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
