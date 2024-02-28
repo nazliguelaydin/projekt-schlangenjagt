@@ -182,12 +182,18 @@ class SceneB extends Phaser.Scene {
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
         this.snake.setScale(0.06);
+
+        
+
+        /*
         this.physics.add.collider(this.snake, this.barGroupTop, () => {
             this.gameOver();
         });
+    
         this.physics.add.collider(this.snake, this.barGroupBottom, () => {
             this.gameOver();
         });
+        */
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -240,7 +246,7 @@ class SceneB extends Phaser.Scene {
         if (this.background2.x + this.background2.width < 0) {
             this.background2.x = this.background.x + this.background.width;
         }
-
+    
         this.barGroupTop.getChildren().forEach(bar => {
             bar.x -= this.barGroupTopSpeed;
             if (bar.x + bar.width <= 0) {
@@ -248,7 +254,7 @@ class SceneB extends Phaser.Scene {
                 this.createBarTop();
             }
         });
-
+    
         this.barGroupBottom.getChildren().forEach(bar => {
             bar.x -= this.barGroupBottomSpeed;
             if (bar.x + bar.width <= 0) {
@@ -256,10 +262,10 @@ class SceneB extends Phaser.Scene {
                 this.createBarBottom();
             }
         });
-
+    
         this.snake.setVelocity(0);
     
-        if (        this.cursors.left.isDown) {
+        if (this.cursors.left.isDown) {
             this.snake.setVelocityX(-160);
         } else if (this.cursors.right.isDown) {
             this.snake.setVelocityX(160);
@@ -275,17 +281,17 @@ class SceneB extends Phaser.Scene {
             this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
                 this.gameOver();
             });
-
+    
             this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
                 this.score += butterfly.getData('point');
                 this.scoreText.setText('Score: ' + this.score);
                 butterfly.destroy();
             });
-
+    
             if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
                 this.snake.y = this.game.canvas.height / 2;
             }
-
+    
             if (this.snake.x >= this.game.canvas.width) {
                 this.snake.x = 0;
                 this.generateNewBars();
@@ -299,9 +305,10 @@ class SceneB extends Phaser.Scene {
             this.physics.pause();
             this.snake.anims.stop();
             this.snake.setVelocity(0);
+        
         }
        
-         clearInterval(this.butterflyInterval);
+        //clearInterval(this.butterflyInterval);
     }
 }
 
