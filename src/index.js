@@ -222,6 +222,10 @@ class SceneB extends Phaser.Scene {
             });
         };
 
+        this.butterflyInterval =  setInterval(() => {
+            createButterfly();
+        }, 1000);
+
         for (let i = 0; i < initialButterflies; i++) {
             createButterfly();
         }
@@ -304,12 +308,10 @@ class SceneB extends Phaser.Scene {
         if (this.gameOverText) {
             this.gameOverText.setVisible(true);
             this.physics.pause();
-            this.snake.anims.stop();
+            clearInterval(this.butterflyInterval); // Clear the interval
+            this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
             this.snake.setVelocity(0);
-        
         }
-       
-        //clearInterval(this.butterflyInterval);
     }
 }
 
