@@ -112,49 +112,40 @@ class SceneB extends Phaser.Scene {
         this.barGroupTop = this.physics.add.group();
         this.barGroupBottom = this.physics.add.group();
 
-     // Funktion zur Erstellung der oberen Balken
-const createBarTop = () => {
-    this.barGroupTop.clear(true, true);
+        // Funktion zur Erstellung der oberen Balken
+        const createBarTop = () => {
+            this.barGroupTop.clear(true, true);
 
-    const barSpacing = 200; // Abstand zwischen den Balken
-    const barWidth = 60;
-    const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
-    const barHeightRange = [100, 400]; // Bereich für die Balkenhöhe
+            const barSpacing = 200; // Abstand zwischen den Balken
+            const barWidth = 60;
+            const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
 
-    for (let i = 0; i < numBars; i++) {
-        const x = i * (barWidth + barSpacing); // Balken starten am linken Rand des Spielfelds
-        const yTop = 0; // Balken beginnt am oberen Rand
-        const barHeight = Phaser.Math.Between(barHeightRange[0], barHeightRange[1]); // Zufällige Höhe für die Balken
+            for (let i = 0; i < numBars; i++) {
+                const x = i * (barWidth + barSpacing) + this.game.canvas.width; // Balken starten außerhalb des Bildschirms
+                const yTop = this.game.canvas.height;
+                const barHeight = Phaser.Math.Between(100, 400); // Zufällige Höhe für die Balken
+                const barTop = this.barGroupTop.create(x, yTop - barHeight / 2, 'barTop').setDisplaySize(barWidth, barHeight).setImmovable(true);
 
-        const barTop = this.physics.add.image(x, yTop + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
-
-        // Balken nach links bewegen
-        this.tweens.add({
-            targets: barTop,
-            x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
-            duration: 7000, // Dauer der Bewegung
-            onComplete: () => {
-                barTop.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                // Balken nach links bewegen
+                this.tweens.add({
+                    targets: barTop,
+                    x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
+                    duration: 7000, // Dauer der Bewegung
+                    onComplete: () => {
+                        barTop.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                    }
+                });
             }
-        });
-    }
-}
+        }
 
-// Funktion zur Erstellung der unteren Balken
-const createBarBottom = () => {
-    this.barGroupBottom.clear(true, true);
+        // Funktion zur Erstellung der unteren Balken
+        const createBarBottom = () => {
+            this.barGroupBottom.clear(true, true);
 
-    const barSpacing = 200; // Abstand zwischen den Balken
-    const barWidth = 60;
-    const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
-    const barHeightRange = [100, 400]; // Bereich für die Balkenhöhe
+            const barSpacing = 200; // Abstand zwischen den Balken
+            const barWidth = 60;
+            const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
 
-<<<<<<< HEAD
-    for (let i = 0; i < numBars; i++) {
-        const x = i * (barWidth + barSpacing); // Balken starten am linken Rand des Spielfelds
-        const yBottom = this.game.canvas.height; // Balken beginnt am unteren Rand
-        const barHeight = Phaser.Math.Between(barHeightRange[0], barHeightRange[1]); // Zufällige Höhe für die Balken
-=======
             for (let i = 0; i < numBars; i++) {
                 const x = i * (barWidth + barSpacing) + this.game.canvas.width; // Balken starten außerhalb des Bildschirms
                 const yBottom = 0;
@@ -162,22 +153,18 @@ const createBarBottom = () => {
                 const barBottom = this.barGroupBottom.create(x, yBottom + barHeight / 2, 'barBottom')
                 .setDisplaySize(barWidth, barHeight).setImmovable(true);
                 // this.physics.add.image(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
->>>>>>> 8ba8757ef4f372dac5523ebb5686dfdb6413bda5
 
-        const barBottom = this.physics.add.image(x, yBottom - barHeight / 2, 'barTop').setDisplaySize(barWidth, barHeight).setImmovable(true);
-
-        // Balken nach links bewegen
-        this.tweens.add({
-            targets: barBottom,
-            x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
-            duration: 7000, // Dauer der Bewegung
-            onComplete: () => {
-                barBottom.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                // Balken nach links bewegen
+                this.tweens.add({
+                    targets: barBottom,
+                    x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
+                    duration: 7000, // Dauer der Bewegung
+                    onComplete: () => {
+                        barBottom.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                    }
+                });
             }
-        });
-    }
-}
-
+        }
 
         // Initialer Aufruf für die Balkenerstellung
         createBarTop();
@@ -266,7 +253,7 @@ const createBarBottom = () => {
         const gameOver = () => {
             console.log('aus')
             this.gameOverText.setVisible(true);
-            // this.physics.pause();
+            this.physics.pause();
             clearInterval(this.butterflyInterval); // Clear the interval
             this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
             this.snake.setVelocity(0);
