@@ -149,10 +149,20 @@ const createBarBottom = () => {
     const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
     const barHeightRange = [100, 400]; // Bereich für die Balkenhöhe
 
+<<<<<<< HEAD
     for (let i = 0; i < numBars; i++) {
         const x = i * (barWidth + barSpacing); // Balken starten am linken Rand des Spielfelds
         const yBottom = this.game.canvas.height; // Balken beginnt am unteren Rand
         const barHeight = Phaser.Math.Between(barHeightRange[0], barHeightRange[1]); // Zufällige Höhe für die Balken
+=======
+            for (let i = 0; i < numBars; i++) {
+                const x = i * (barWidth + barSpacing) + this.game.canvas.width; // Balken starten außerhalb des Bildschirms
+                const yBottom = 0;
+                const barHeight = Phaser.Math.Between(100, 400); // Zufällige Höhe für die Balken
+                const barBottom = this.barGroupBottom.create(x, yBottom + barHeight / 2, 'barBottom')
+                .setDisplaySize(barWidth, barHeight).setImmovable(true);
+                // this.physics.add.image(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
+>>>>>>> 8ba8757ef4f372dac5523ebb5686dfdb6413bda5
 
         const barBottom = this.physics.add.image(x, yBottom - barHeight / 2, 'barTop').setDisplaySize(barWidth, barHeight).setImmovable(true);
 
@@ -187,8 +197,10 @@ const createBarBottom = () => {
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
         this.snake.setScale(0.06);
+        this.snake.refreshBody();
 
         
+        /*
         this.physics.add.collider(this.snake, this.barGroupTop, () => {
             this.gameOver();
         });
@@ -196,6 +208,7 @@ const createBarBottom = () => {
         this.physics.add.collider(this.snake, this.barGroupBottom, () => {
             this.gameOver();
         });
+        */
         
         
 
@@ -243,6 +256,34 @@ const createBarBottom = () => {
         });
         this.gameOverText.setOrigin(0.5);
         this.gameOverText.setVisible(false);
+
+        /*
+        this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
+            this.gameOver();
+        });
+        */
+
+        const gameOver = () => {
+            console.log('aus')
+            this.gameOverText.setVisible(true);
+            // this.physics.pause();
+            clearInterval(this.butterflyInterval); // Clear the interval
+            this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
+            this.snake.setVelocity(0);
+            
+        }
+
+
+       this.physics.add.overlap(this.snake, this.barGroupBottom, gameOver, null, this)
+       this.physics.add.overlap(this.snake, this.barGroupTop, gameOver, null, this)
+       
+
+        this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
+            this.score += butterfly.getData('point');
+            this.scoreText.setText('Score: ' + this.score);
+            butterfly.destroy();
+        });
+
     }
 
     update() {
@@ -288,16 +329,9 @@ const createBarBottom = () => {
         }
     
         if (!this.gameOverText.visible) {
-            this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
-                this.gameOver();
-            });
+            
     
-            this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
-                this.score += butterfly.getData('point');
-                this.scoreText.setText('Score: ' + this.score);
-                butterfly.destroy();
-            });
-    
+            
             if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
                 this.snake.y = this.game.canvas.height / 2;
             }
@@ -309,15 +343,7 @@ const createBarBottom = () => {
         }
     }
     
-    gameOver() {
-        if (this.gameOverText) {
-            this.gameOverText.setVisible(true);
-            this.physics.pause();
-            clearInterval(this.butterflyInterval); // Clear the interval
-            this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
-            this.snake.setVelocity(0);
-        }
-    }
+    
 }
 
 const config = {
