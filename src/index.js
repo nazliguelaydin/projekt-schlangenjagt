@@ -113,69 +113,79 @@ class SceneB extends Phaser.Scene {
         this.barGroupBottom = this.physics.add.group();
 
         // Funktion zur Erstellung der oberen Balken
-        const createBarTop = () => {
+        this.createBarTop = () => {
             this.barGroupTop.clear(true, true);
-
+        
             const barSpacing = 200; // Abstand zwischen den Balken
             const barWidth = 60;
             const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
-
+        
+            let totalBarWidth = 500;
+        
             for (let i = 0; i < numBars; i++) {
-                const x = i * (barWidth + barSpacing) + this.game.canvas.width; // Balken starten außerhalb des Bildschirms
+                const x = i * (barWidth + barSpacing) + this.game.canvas.width;  // Balken starten außerhalb des Bildschirms
                 const yTop = this.game.canvas.height;
-                const barHeight = Phaser.Math.Between(100, 400); // Zufällige Höhe für die Balken
+                const barHeight = Phaser.Math.Between(200, 300); // Zufällige Höhe für die Balken, damit genügend Platz zwischen den Balken bleibt
                 const barTop = this.barGroupTop.create(x, yTop - barHeight / 2, 'barTop').setDisplaySize(barWidth, barHeight).setImmovable(true);
-
+        
+                totalBarWidth += barWidth + barSpacing;
+        
                 // Balken nach links bewegen
                 this.tweens.add({
                     targets: barTop,
                     x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
-                    duration: 7000, // Dauer der Bewegung
+                    duration: 6000, // Dauer der Bewegung
                     onComplete: () => {
                         barTop.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
                     }
                 });
             }
-        }
-
+        };
+        
         // Funktion zur Erstellung der unteren Balken
-        const createBarBottom = () => {
+        this.createBarBottom = () => {
             this.barGroupBottom.clear(true, true);
-
+        
             const barSpacing = 200; // Abstand zwischen den Balken
             const barWidth = 60;
             const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
-
+            const verticalSpacing = 30000; // Zusätzlicher vertikaler Abstand zwischen den oberen und unteren Balken
+        
+            let totalBarWidth = 500;
+        
             for (let i = 0; i < numBars; i++) {
-                const x = i * (barWidth + barSpacing) + this.game.canvas.width; // Balken starten außerhalb des Bildschirms
+                const x = i * (barWidth + barSpacing) + this.game.canvas.width;  // Balken starten außerhalb des Bildschirms
                 const yBottom = 0;
-                const barHeight = Phaser.Math.Between(100, 400); // Zufällige Höhe für die Balken
-                const barBottom = this.barGroupBottom.create(x, yBottom + barHeight / 2, 'barBottom')
-                .setDisplaySize(barWidth, barHeight).setImmovable(true);
-                // this.physics.add.image(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
-
+                const barHeight = Phaser.Math.Between(200, 300); // Zufällige Höhe für die Balken, damit genügend Platz zwischen den Balken bleibt
+                const yTop = this.game.canvas.height - barHeight - verticalSpacing; // Y-Position der oberen Balken
+                const barBottom = this.barGroupBottom.create(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
+        
+                totalBarWidth += barWidth + barSpacing;
+        
                 // Balken nach links bewegen
                 this.tweens.add({
                     targets: barBottom,
                     x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
-                    duration: 7000, // Dauer der Bewegung
+                    duration: 6000, // Dauer der Bewegung
                     onComplete: () => {
                         barBottom.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
                     }
                 });
             }
-        }
-
+        };
+        
         // Initialer Aufruf für die Balkenerstellung
-        createBarTop();
-        createBarBottom();
+        this.createBarTop();
+        this.createBarBottom();
+        
+        
         
         // Event-Schleife für die kontinuierliche Balkenerstellung
         this.createBarBottomLoop = this.time.addEvent({
             delay: Phaser.Math.FloatBetween(5000, 10000), // Verzögerung zwischen den Wiederholungen
             callback: () => {
-                createBarBottom();
-                createBarTop(); // Obere Balken gleichzeitig erstellen
+                this.createBarBottom();
+                this.createBarTop(); // Obere Balken gleichzeitig erstellen
             },
             callbackScope: this,
             loop: true
@@ -183,23 +193,10 @@ class SceneB extends Phaser.Scene {
 
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
-        this.snake.setScale(0.06);
+        this.snake.setScale(0.05);
         this.snake.refreshBody();
 
-        
-        /*
-        this.physics.add.collider(this.snake, this.barGroupTop, () => {
-            this.gameOver();
-        });
-        
-        this.physics.add.collider(this.snake, this.barGroupBottom, () => {
-            this.gameOver();
-        });
-        */
-        
-        
-
-    
+     
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -244,11 +241,6 @@ class SceneB extends Phaser.Scene {
         this.gameOverText.setOrigin(0.5);
         this.gameOverText.setVisible(false);
 
-        /*
-        this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
-            this.gameOver();
-        });
-        */
 
         const gameOver = () => {
             console.log('aus')
@@ -257,6 +249,7 @@ class SceneB extends Phaser.Scene {
             clearInterval(this.butterflyInterval); // Clear the interval
             this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
             this.snake.setVelocity(0);
+            this.scene.pause()
             
         }
 
@@ -265,11 +258,7 @@ class SceneB extends Phaser.Scene {
        this.physics.add.overlap(this.snake, this.barGroupTop, gameOver, null, this)
        
 
-        this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
-            this.score += butterfly.getData('point');
-            this.scoreText.setText('Score: ' + this.score);
-            butterfly.destroy();
-        });
+       
 
     }
 
@@ -285,22 +274,35 @@ class SceneB extends Phaser.Scene {
             this.background2.x = this.background.x + this.background.width;
         }
     
+        // Überprüfen und aktualisieren der Positionen der oberen Balken
         this.barGroupTop.getChildren().forEach(bar => {
             bar.x -= this.barGroupTopSpeed;
             if (bar.x + bar.width <= 0) {
                 bar.destroy();
-                this.createBarTop();
             }
         });
     
+        // Überprüfen und aktualisieren der Positionen der unteren Balken
         this.barGroupBottom.getChildren().forEach(bar => {
             bar.x -= this.barGroupBottomSpeed;
             if (bar.x + bar.width <= 0) {
                 bar.destroy();
-                this.createBarBottom();
             }
         });
     
+        // Überprüfen, ob neue Balken erzeugt werden müssen
+        const lastTopBar = this.barGroupTop.getLength() > 0 ? this.barGroupTop.getChildren()[this.barGroupTop.getLength() - 1] : null;
+        const lastBottomBar = this.barGroupBottom.getLength() > 0 ? this.barGroupBottom.getChildren()[this.barGroupBottom.getLength() - 1] : null;
+    
+        if (!lastTopBar || lastTopBar.x <= this.game.canvas.width - lastTopBar.width) {
+            this.createBarTop();
+        }
+    
+        if (!lastBottomBar || lastBottomBar.x <= this.game.canvas.width - lastBottomBar.width) {
+            this.createBarBottom();
+        }
+    
+        // Bewegung des Schlangenobjekts
         this.snake.setVelocity(0);
     
         if (this.cursors.left.isDown) {
@@ -315,20 +317,25 @@ class SceneB extends Phaser.Scene {
             this.snake.setVelocityY(160);
         }
     
+        // Überprüfen auf Kollision mit den Seitenrändern des Spielfelds
         if (!this.gameOverText.visible) {
-            
-    
-            
             if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
                 this.snake.y = this.game.canvas.height / 2;
             }
     
             if (this.snake.x >= this.game.canvas.width) {
                 this.snake.x = 0;
-                this.generateNewBars();
             }
         }
+    
+        // Überprüfen auf Kollision mit Schmetterlingen und Aktualisieren des Punktestands
+        this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
+            this.score += butterfly.getData('point');
+            this.scoreText.setText('Score: ' + this.score);
+            butterfly.destroy();
+        });
     }
+    
     
     
 }
