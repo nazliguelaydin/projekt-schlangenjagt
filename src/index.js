@@ -150,7 +150,9 @@ class SceneB extends Phaser.Scene {
                 const x = i * (barWidth + barSpacing) + this.game.canvas.width; // Balken starten außerhalb des Bildschirms
                 const yBottom = 0;
                 const barHeight = Phaser.Math.Between(100, 400); // Zufällige Höhe für die Balken
-                const barBottom = this.physics.add.image(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
+                const barBottom = this.barGroupBottom.create(x, yBottom + barHeight / 2, 'barBottom')
+                .setDisplaySize(barWidth, barHeight).setImmovable(true);
+                // this.physics.add.image(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
 
                 // Balken nach links bewegen
                 this.tweens.add({
@@ -182,8 +184,10 @@ class SceneB extends Phaser.Scene {
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
         this.snake.setScale(0.06);
+        this.snake.refreshBody();
 
         
+        /*
         this.physics.add.collider(this.snake, this.barGroupTop, () => {
             this.gameOver();
         });
@@ -191,6 +195,7 @@ class SceneB extends Phaser.Scene {
         this.physics.add.collider(this.snake, this.barGroupBottom, () => {
             this.gameOver();
         });
+        */
         
         
 
@@ -238,6 +243,34 @@ class SceneB extends Phaser.Scene {
         });
         this.gameOverText.setOrigin(0.5);
         this.gameOverText.setVisible(false);
+
+        /*
+        this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
+            this.gameOver();
+        });
+        */
+
+        const gameOver = () => {
+            console.log('aus')
+            this.gameOverText.setVisible(true);
+            // this.physics.pause();
+            clearInterval(this.butterflyInterval); // Clear the interval
+            this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
+            this.snake.setVelocity(0);
+            
+        }
+
+
+       this.physics.add.overlap(this.snake, this.barGroupBottom, gameOver, null, this)
+       this.physics.add.overlap(this.snake, this.barGroupTop, gameOver, null, this)
+       
+
+        this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
+            this.score += butterfly.getData('point');
+            this.scoreText.setText('Score: ' + this.score);
+            butterfly.destroy();
+        });
+
     }
 
     update() {
@@ -283,16 +316,9 @@ class SceneB extends Phaser.Scene {
         }
     
         if (!this.gameOverText.visible) {
-            this.physics.world.overlap(this.snake, [this.barGroupTop, this.barGroupBottom], () => {
-                this.gameOver();
-            });
+            
     
-            this.physics.world.overlap(this.snake, this.butterflies, (snake, butterfly) => {
-                this.score += butterfly.getData('point');
-                this.scoreText.setText('Score: ' + this.score);
-                butterfly.destroy();
-            });
-    
+            
             if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
                 this.snake.y = this.game.canvas.height / 2;
             }
@@ -304,15 +330,7 @@ class SceneB extends Phaser.Scene {
         }
     }
     
-    gameOver() {
-        if (this.gameOverText) {
-            this.gameOverText.setVisible(true);
-            this.physics.pause();
-            clearInterval(this.butterflyInterval); // Clear the interval
-            this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
-            this.snake.setVelocity(0);
-        }
-    }
+    
 }
 
 const config = {
