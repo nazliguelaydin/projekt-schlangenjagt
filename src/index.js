@@ -1,3 +1,7 @@
+document.getElementById("startButton").addEventListener( "click", startGame); 
+
+
+function startGame (){
 import Phaser from 'phaser';
 import hintergrund from './assets/hintergrund.png';
 import oben from './assets/oben.png';
@@ -373,3 +377,4 @@ const config = {
 };
    
 const game = new Phaser.Game(config);
+}
