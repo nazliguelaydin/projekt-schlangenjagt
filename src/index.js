@@ -80,6 +80,7 @@ class SceneB extends Phaser.Scene {
         this.backgroundSpeed = 1;
         this.barGroupBottomSpeed = 1;
         this.barGroupTopSpeed = 1;
+        
 
     }
 
@@ -112,84 +113,101 @@ class SceneB extends Phaser.Scene {
         this.barGroupTop = this.physics.add.group();
         this.barGroupBottom = this.physics.add.group();
 
-        // Funktion zur Erstellung der oberen Balken
-        this.createBarTop = () => {
-            this.barGroupTop.clear(true, true);
-        
-            const barSpacing = 200; // Abstand zwischen den Balken
-            const barWidth = 60;
-            const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
-        
-            let totalBarWidth = 500;
-        
-            for (let i = 0; i < numBars; i++) {
-                const x = i * (barWidth + barSpacing) + this.game.canvas.width;  // Balken starten außerhalb des Bildschirms
-                const yTop = this.game.canvas.height;
-                const barHeight = Phaser.Math.Between(200, 300); // Zufällige Höhe für die Balken, damit genügend Platz zwischen den Balken bleibt
-                const barTop = this.barGroupTop.create(x, yTop - barHeight / 2, 'barTop').setDisplaySize(barWidth, barHeight).setImmovable(true);
-        
-                totalBarWidth += barWidth + barSpacing;
-        
-                // Balken nach links bewegen
-                this.tweens.add({
-                    targets: barTop,
-                    x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
-                    duration: 6000, // Dauer der Bewegung
-                    onComplete: () => {
-                        barTop.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
-                    }
-                });
+            
+            // Funktion zur Erstellung der oberen Balken
+this.createBarTop = () => {
+    const barSpacing = 200; // Abstand zwischen den Balken
+    const barWidth = 60;
+    const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
+
+    const existingBars = this.barGroupTop.getChildren();
+    let lastBarX = this.game.canvas.width;
+
+    if (existingBars.length > 0) {
+        const lastBar = existingBars[existingBars.length - 1];
+        lastBarX = lastBar.x + barWidth + barSpacing; // Position des nächsten Balkens basierend auf dem letzten sichtbaren Balken
+    }
+
+    for (let i = 0; i < numBars; i++) {
+        const x = lastBarX + i * (barWidth + barSpacing); // Balken starten außerhalb des Bildschirms
+        const yTop = this.game.canvas.height;
+        const barHeight = Phaser.Math.Between(200, 300); // Zufällige Höhe für die Balken, damit genügend Platz zwischen den Balken bleibt
+        const barTop = this.barGroupTop.create(x, yTop - barHeight / 2, 'barTop').setDisplaySize(barWidth, barHeight).setImmovable(true);
+
+        // Balken nach links bewegen
+        this.tweens.add({
+            targets: barTop,
+            x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
+            duration: 6000, // Dauer der Bewegung
+            onComplete: () => {
+                barTop.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
             }
-        };
-        
-        // Funktion zur Erstellung der unteren Balken
-        this.createBarBottom = () => {
-            this.barGroupBottom.clear(true, true);
-        
-            const barSpacing = 200; // Abstand zwischen den Balken
-            const barWidth = 60;
-            const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
-            const verticalSpacing = 30000; // Zusätzlicher vertikaler Abstand zwischen den oberen und unteren Balken
-        
-            let totalBarWidth = 500;
-        
-            for (let i = 0; i < numBars; i++) {
-                const x = i * (barWidth + barSpacing) + this.game.canvas.width;  // Balken starten außerhalb des Bildschirms
-                const yBottom = 0;
-                const barHeight = Phaser.Math.Between(200, 300); // Zufällige Höhe für die Balken, damit genügend Platz zwischen den Balken bleibt
-                const yTop = this.game.canvas.height - barHeight - verticalSpacing; // Y-Position der oberen Balken
-                const barBottom = this.barGroupBottom.create(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
-        
-                totalBarWidth += barWidth + barSpacing;
-        
-                // Balken nach links bewegen
-                this.tweens.add({
-                    targets: barBottom,
-                    x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
-                    duration: 6000, // Dauer der Bewegung
-                    onComplete: () => {
-                        barBottom.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
-                    }
-                });
-            }
-        };
-        
-        // Initialer Aufruf für die Balkenerstellung
-        this.createBarTop();
-        this.createBarBottom();
-        
-        
-        
-        // Event-Schleife für die kontinuierliche Balkenerstellung
-        this.createBarBottomLoop = this.time.addEvent({
-            delay: Phaser.Math.FloatBetween(5000, 10000), // Verzögerung zwischen den Wiederholungen
-            callback: () => {
-                this.createBarBottom();
-                this.createBarTop(); // Obere Balken gleichzeitig erstellen
-            },
-            callbackScope: this,
-            loop: true
         });
+    }
+};
+
+// Funktion zur Erstellung der unteren Balken
+this.createBarBottom = () => {
+    const barSpacing = 200; // Abstand zwischen den Balken
+    const barWidth = 60;
+    const numBars = Math.ceil(this.game.canvas.width / (barWidth + barSpacing)); // Anzahl der Balken basierend auf der Bildschirmbreite
+
+    const existingBars = this.barGroupBottom.getChildren();
+    let lastBarX = this.game.canvas.width;
+
+    if (existingBars.length > 0) {
+        const lastBar = existingBars[existingBars.length - 1];
+        lastBarX = lastBar.x + barWidth + barSpacing; // Position des nächsten Balkens basierend auf dem letzten sichtbaren Balken
+    }
+
+    for (let i = 0; i < numBars; i++) {
+        const x = lastBarX + i * (barWidth + barSpacing); // Balken starten außerhalb des Bildschirms
+        const yBottom = 0;
+        const barHeight = Phaser.Math.Between(200, 300); // Zufällige Höhe für die Balken, damit genügend Platz zwischen den Balken bleibt
+        const barBottom = this.barGroupBottom.create(x, yBottom + barHeight / 2, 'barBottom').setDisplaySize(barWidth, barHeight).setImmovable(true);
+
+        // Balken nach links bewegen
+        this.tweens.add({
+            targets: barBottom,
+            x: '-=' + (this.game.canvas.width + barWidth + barSpacing), // Ziel-X-Position (Bildschirmbreite entfernt)
+            duration: 6000, // Dauer der Bewegung
+            onComplete: () => {
+                barBottom.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+            }
+        });
+    }
+};
+
+// Erste Erstellung der Balken
+this.createBarTop();
+this.createBarBottom();
+
+// Event, um neue Balken zu erstellen, wenn die ersten den Bildschirm verlassen haben
+this.physics.world.on('worldbounds', (body) => {
+    if (body.blocked.right) {
+        this.barGroupTop.getChildren().forEach(bar => {
+            if (body.gameObject === bar) {
+                bar.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                this.createBarTop(); // Neue obere Balken erstellen
+            }
+        });
+
+        this.barGroupBottom.getChildren().forEach(bar => {
+            if (body.gameObject === bar) {
+                bar.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                this.createBarBottom(); // Neue untere Balken erstellen
+            }
+        });
+    }
+});
+  
+
+        
+     
+        
+        
+        
+        
 
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
