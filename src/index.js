@@ -80,6 +80,8 @@ class SceneB extends Phaser.Scene {
         this.backgroundSpeed = 1;
         this.barGroupBottomSpeed = 1;
         this.barGroupTopSpeed = 1;
+        this.currentLevel = 1; 
+        this.destroyedBars = 0; 
         
 
     }
@@ -109,6 +111,8 @@ class SceneB extends Phaser.Scene {
 
         this.background = this.add.image(0, 0, 'backgroundImg').setOrigin(0);
         this.background2 = this.add.image(this.background.x + this.background.width, 0, 'backgroundImg').setOrigin(0);
+
+
 
         this.barGroupTop = this.physics.add.group();
         this.barGroupBottom = this.physics.add.group();
@@ -143,6 +147,8 @@ this.createBarTop = () => {
                 barTop.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
             }
         });
+
+        this.destroyedBars++; 
     }
 };
 
@@ -175,6 +181,8 @@ this.createBarBottom = () => {
                 barBottom.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
             }
         });
+
+        this.destroyedBars++; 
     }
 };
 
@@ -199,15 +207,12 @@ this.physics.world.on('worldbounds', (body) => {
             }
         });
     }
+
 });
-  
 
         
-     
-        
-        
-        
-        
+  
+
 
         this.snake = this.physics.add.sprite(5, this.game.canvas.height / 2, 'snake');
         this.snake.setCollideWorldBounds(true);
@@ -275,12 +280,25 @@ this.physics.world.on('worldbounds', (body) => {
        this.physics.add.overlap(this.snake, this.barGroupBottom, gameOver, null, this)
        this.physics.add.overlap(this.snake, this.barGroupTop, gameOver, null, this)
        
+      
+    
+}
 
-       
 
-    }
+    
 
     update() {
+
+        // Überprüfe, ob genug Balken zerstört wurden, um zum nächsten Level zu wechseln
+const barsPerLevel = 4; // Anpassen, wie viele Balken pro Level zerstört werden müssen, um aufzusteigen
+if (this.destroyedBars >= barsPerLevel) {
+    this.currentLevel++;
+    this.displayLevelText(); // Aktualisiere den Level-Text
+    this.destroyedBars = 0; // Zurücksetzen der zerstörten Balken für das nächste Level
+}
+
+
+
         this.background.x -= this.backgroundSpeed;
         this.background2.x -= this.backgroundSpeed;
     
@@ -354,6 +372,18 @@ this.physics.world.on('worldbounds', (body) => {
         });
     }
     
+    displayLevelText() {
+        // Entferne zuerst den alten Level-Text, falls vorhanden
+        if (this.levelText) {
+            this.levelText.destroy();
+        }
+        // Erstelle und positioniere den neuen Level-Text
+        this.levelText = this.add.text(400, 50, 'Level ' + this.currentLevel, {
+            fontFamily: 'Arial',
+            fontSize: 24,
+            color: '#ffffff'
+        }).setOrigin(0.5);
+    }
     
     
 }
