@@ -80,11 +80,14 @@ class SceneB extends Phaser.Scene {
         this.backgroundSpeed = 1;
         this.barGroupBottomSpeed = 1;
         this.barGroupTopSpeed = 1;
-        this.currentLevel = 0; 
+        this.currentLevel = 1; 
         this.destroyedBars = 0; 
+        
         
 
     }
+
+    
 
     preload() {
         this.load.image('backgroundImg', hintergrund);
@@ -95,7 +98,12 @@ class SceneB extends Phaser.Scene {
         this.load.audio('music', '/assets/sound.mp3');
     }
 
+   
+
     create() {
+
+
+
         this.music = this.sound.add('music', {
             volume: 0.4,
             loop: true
@@ -144,10 +152,11 @@ class SceneB extends Phaser.Scene {
                     duration: 6000, // Dauer der Bewegung
                     onComplete: () => {
                         barTop.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                        //this.destroyedBars++;
                     }
                 });
         
-                this.destroyedBars++; 
+               
             }
         };
         
@@ -179,10 +188,11 @@ this.createBarBottom = () => {
             duration: 6000, // Dauer der Bewegung
             onComplete: () => {
                 barBottom.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
+                this.destroyedBars++;
             }
         });
 
-        this.destroyedBars++; 
+        
     }
 };
 
@@ -198,6 +208,7 @@ this.physics.world.on('worldbounds', (body) => {
             if (body.gameObject === bar) {
                 bar.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
                 this.createBarTop(); // Neue obere Balken erstellen
+                
             }
         });
 
@@ -205,13 +216,14 @@ this.physics.world.on('worldbounds', (body) => {
             if (body.gameObject === bar) {
                 bar.destroy(); // Balken zerstören, wenn er den Bildschirm verlässt
                 this.createBarBottom(); // Neue untere Balken erstellen
+                
             }
         });
     }
 
 });
 
-        
+                
   
 
 
@@ -237,7 +249,7 @@ this.physics.world.on('worldbounds', (body) => {
             const speedY = Phaser.Math.Between(-100, 100);
             butterfly.setVelocity(speedX, speedY);
 
-            const destroyTime = Phaser.Math.Between(5000, 10000);
+            const destroyTime = Phaser.Math.Between(2000, 5000);
             this.time.delayedCall(destroyTime, () => {
                 butterfly.destroy();
                 if (this.butterflies.countActive() <= 10) {
@@ -266,6 +278,14 @@ this.physics.world.on('worldbounds', (body) => {
         this.gameOverText.setVisible(false);
 
         
+
+
+        
+
+
+
+            
+        
         const gameOver = () => {
             console.log('aus')
             this.gameOverText.setVisible(true);
@@ -274,19 +294,18 @@ this.physics.world.on('worldbounds', (body) => {
             this.physics.world.overlap(this.snake, this.butterflies, null); // End overlap checks
             this.snake.setVelocity(0);
             this.scene.pause();
+            
            
 
-           
             
         }
 
+       
 
        this.physics.add.overlap(this.snake, this.barGroupBottom, gameOver, null, this)
        this.physics.add.overlap(this.snake, this.barGroupTop, gameOver, null, this)
        
-       
-      
-    
+
 }
 
 
@@ -294,14 +313,19 @@ this.physics.world.on('worldbounds', (body) => {
 
     update() {
 
+
        
-            // Überprüfe, ob genug Balken zerstört wurden, um zum nächsten Level zu wechseln
-            const barsPerLevel = 4; // Anpassen, wie viele Balken pro Level zerstört werden müssen, um aufzusteigen
-            if (this.destroyedBars >= barsPerLevel ) {
-                this.currentLevel++;
-                this.displayLevelText(); // Aktualisiere den Level-Text
-                this.destroyedBars = 0; // Zurücksetzen der zerstörten Balken für das nächste Level
-            }
+
+        const barsPerLevel = 4;
+
+if (this.destroyedBars >= barsPerLevel) {
+    this.displayLevelText(); // Aktualisiere den Level-Text
+    this.destroyedBars = 0; // Zurücksetzen der zerstörten Balken für das nächste Level
+    this.currentLevel++; // Inkrementiere den Index des nächsten Levels
+}
+
+    
+
         
 
 
@@ -359,11 +383,14 @@ this.physics.world.on('worldbounds', (body) => {
         } else if (this.cursors.down.isDown) {
             this.snake.setVelocityY(160);
         }
+
+        
     
         // Überprüfen auf Kollision mit den Seitenrändern des Spielfelds
         if (!this.gameOverText.visible) {
             if (this.snake.y < 0 || this.snake.y > this.game.canvas.height) {
                 this.snake.y = this.game.canvas.height / 2;
+                
             }
     
             if (this.snake.x >= this.game.canvas.width) {
@@ -379,13 +406,14 @@ this.physics.world.on('worldbounds', (body) => {
         });
     }
     
+    
     displayLevelText() {
         // Entferne zuerst den alten Level-Text, falls vorhanden
         if (this.levelText) {
             this.levelText.destroy();
         }
         // Erstelle und positioniere den neuen Level-Text
-        this.levelText = this.add.text(400, 300, 'Level ' + this.currentLevel, {
+        this.levelText = this.add.text(400, 300, 'Level ' + (this.currentLevel + 1), {
             fontFamily: 'Arial',
             fontSize: 28,
             color: '#ffffff'
@@ -402,12 +430,15 @@ this.physics.world.on('worldbounds', (body) => {
                 // Füge einen Timer hinzu, um den Text nach einer Verzögerung auszublenden
                 this.time.delayedCall(1000, () => {
                     this.levelText.destroy();
+                    const barsPerLevel = 4;
+                    if (this.destroyedBars >= barsPerLevel) {
+                        this.currentLevel++; // Inkrementiere den Index des nächsten Levels
+                        this.destroyedBars = 0; // Zurücksetzen der zerstörten Balken für das nächste Level
+                    }
                 });
             }
         });
     }
-    
-    
     
     
 }
